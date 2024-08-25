@@ -7,6 +7,17 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-pro",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+    # other params...
+)
+
 embeddingsModel = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
@@ -38,13 +49,12 @@ def explitTextIntoChunks(text: list):
 
 def createVectorOfText(text) -> None:
     # Convert the text to LangChain's `Document` format
-    # docs =  [Document(page_content=text, metadata={"source": "local"})]
     docs = text
     db = FAISS.from_documents(docs, embeddingsModel)
     db.save_local("vectorIndex")
     return True
 
-def searchYourQuery(query):
+def searchFromIndex(query):
     db = FAISS.load_local(folder_path="vectorIndex",embeddings=embeddingsModel,allow_dangerous_deserialization=True)
     docs = db.similarity_search(query)
     print("1st search")
@@ -56,9 +66,18 @@ def searchYourQuery(query):
     # docs = db.similarity_search_by_vector(embedding_vector)
     # print(docs[0].page_content)
 
-
-
-import streamlit as st
+def searchYourQuery(query: str, predefinedAnswer : str):
+    res = " user query is: "+ query +" \n predefined set of answer is: "+ str(predefinedAnswer)
+    messages = [
+    (
+        "system",
+        "You are a helpful assistant that will find the answer for user query. You will have set  of predefined answer and query. you have to give answe from that set of predefined answer.",
+    ),
+    ("human", res),
+    ]
+    ai_msg = llm.invoke(messages)
+    print(ai_msg.content)
+    return ai_msg.content
 
 # Create containers for left and right sections
 left_col = st.container()
@@ -124,7 +143,8 @@ with right_col:
         
         if query:
             # Perform the query on the created index
-            result = searchYourQuery(query)
+            search = searchFromIndex(query)
+            result = searchYourQuery(query,search)
             st.write(f"**Most relevant result:** {result}")
     else:
         st.warning("Please create an index from the PDFs before querying.")
