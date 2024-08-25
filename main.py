@@ -5,8 +5,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import streamlit as st
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 embeddingsModel = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 

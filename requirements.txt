@@ -2,3 +2,4 @@ google-generativeai
 langchain_community
 langchain_google_genai
 pypdf2==3.0.1
+dotenv
