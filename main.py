@@ -5,6 +5,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import streamlit as st
+import time
+import uuid
 from dotenv import load_dotenv
 load_dotenv()
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -20,8 +22,10 @@ llm = ChatGoogleGenerativeAI(
 
 embeddingsModel = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+# Initialize a global variable in session state
+if 'vectorIndexName' not in st.session_state:
+    st.session_state.vectorIndexName = "vectorIndex-" + str(uuid.uuid1()) + "-" + str(time.time())
 
- 
 def textFromPDF(file) -> list:
     try:
         # Open a PDF file
@@ -52,17 +56,20 @@ def explitTextIntoChunks(text: list):
 
 def createVectorOfText(text) -> None:
     try:
+        vectorIndexName = st.session_state.vectorIndexName
+        print(vectorIndexName)
         # Convert the text to LangChain's `Document` format
         docs = text
         db = FAISS.from_documents(docs, embeddingsModel)
-        db.save_local("vectorIndex")
+        db.save_local(vectorIndexName)
         return True
     except Exception as e:
         return False
 
 def searchFromIndex(query):
     try:
-        db = FAISS.load_local(folder_path="vectorIndex",embeddings=embeddingsModel,allow_dangerous_deserialization=True)
+        vectorIndexName = st.session_state.vectorIndexName
+        db = FAISS.load_local(folder_path=vectorIndexName,embeddings=embeddingsModel,allow_dangerous_deserialization=True)
         docs = db.similarity_search(query)
         print("1st search")
         print(docs[0].page_content)
@@ -109,7 +116,7 @@ with left_col:
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="left-col">', unsafe_allow_html=True)
-    st.markdown("## PDF Upload & Index Creation")
+    st.markdown("## PDF Upload and Index Creation")
     st.markdown("---")  # Adds a horizontal line for separation
 
     if "index_created" not in st.session_state:
