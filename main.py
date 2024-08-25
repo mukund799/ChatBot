@@ -10,7 +10,7 @@ load_dotenv()
 embeddingsModel = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-
+ 
 def textFromPDF(file) -> list:
     # Open a PDF file
     # with open('example2.pdf', 'rb') as file:
