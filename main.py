@@ -10,7 +10,7 @@ load_dotenv()
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-pro",
+    model="gemini-1.5-flash",
     temperature=0,
     max_tokens=None,
     timeout=None,
@@ -175,3 +175,5 @@ with right_col:
     else:
         st.warning("Please create an index from the PDFs before querying.")
     st.markdown('</div>', unsafe_allow_html=True)
+
+
