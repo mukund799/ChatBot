@@ -90,6 +90,5 @@ typing_extensions==4.12.2
 tzdata==2024.1
 uritemplate==4.1.1
 urllib3==2.2.2
-yarl==1.9.4
 uuid==1.30
-time
+yarl==1.9.4
